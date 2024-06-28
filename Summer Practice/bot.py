@@ -3,7 +3,7 @@ import telebot
 bot = telebot.TeleBot('7405204357:AAFb858hrwmJkzj8TgM7JlOFZwy4gCxRwuc')
 
 from telebot import types
-
+from get_data import get_data
 
 @bot.message_handler(commands=['start'])  # Начало работы
 def startBot(message):
@@ -34,13 +34,35 @@ def stopBot(message):
 def response(function_call):
     if function_call.message:
         if function_call.data == "yes":  # Если нажали кнопку "Да"
-            second_mess = "Напиши ID груза, который хотите найти"  # Второе сообщение, после "Да"
+            second_mess = "Напиши свою электронную почту"  # Второе сообщение, после "Да"
             bot.send_message(function_call.message.chat.id, second_mess)  # Показать второе сообщение
             bot.answer_callback_query(function_call.id)  # Обработка команды закончена
         elif function_call.data == "end":
             end_mess = "До свидания!"
             bot.send_message(function_call.message.chat.id, end_mess)
             bot.answer_callback_query(function_call.id)
+        else:
+            id, full = get_data(mail)
+            for i in id:
+                if function_call.data == i:
+                    bot.send_message(function_call.message.chat.id, full[i])
+
+
+@bot.message_handler(content_types=['text'])
+def get_answer(message):
+    global mail
+    if "@" in message.text:
+        mail = message.text
+        print(mail)
+        id, full = get_data(mail)
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        for item in id:
+            button = types.InlineKeyboardButton(text=item, callback_data=item)
+            keyboard.add(button)
+        bot.send_message(message.chat.id, 'Выберите ID груза, который Вам нужен:', reply_markup=keyboard)
+    else:
+        third_mess = 'Введите название своей электронной почты'
+        bot.send_message(message.chat.id, third_mess)
 
 
 bot.infinity_polling()

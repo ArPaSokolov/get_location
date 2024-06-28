@@ -2,9 +2,9 @@ import json
 import datetime
 
 
-def get_data():
-    answers = []
-    desired_client = "demid.working@gmail.com"  # почта, по которой получаем данные
+def get_data(desired_client):
+    answers_id = []
+    answers_full = {}
     with open("data.json", "r") as file:
         data = json.load(file)  # читаем полученные данные
         for item in data:
@@ -25,17 +25,16 @@ def get_data():
 
                     end_time = stop.get('end', '-')  # время окончания остановки
                     end_time = datetime.datetime.fromisoformat(end_time[:-1])
-                    answer = (f"Последнее местоположение груза {vehicleName} (#{vehicleId}):\
+                    answer_id = (vehicleId)
+                    answer_full = (f"Последнее местоположение груза {vehicleName} (#{vehicleId}):\
                                 \nПункт: {address}\
                                 \nПрибыл: {start_time.strftime('%H:%M %d-%m-%Y')}\
                                 \nПокинул: {end_time.strftime('%H:%M %d-%m-%Y')}\
-                                \nПолучатель: {receiver}")
+                                \nПолучатель: {receiver}\n")
                 else:
                     print(f"Местоположение груза {vehicleId} неизвестно.")
 
-            answers.append(answer)
+            answers_id.append(answer_id)
+            answers_full[vehicleId] = answer_full
 
-        return answers
-
-
-print(*get_data())
+        return answers_id, answers_full

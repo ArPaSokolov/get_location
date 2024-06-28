@@ -86,6 +86,6 @@ vehicleIds = ["84350",
               "42131"]
 
 # запись
-with open("data.json", "a") as file:
+with open("data.json", "w") as file:
     data = generate_data(vehicleIds, addresses)
     json.dump(data, file)

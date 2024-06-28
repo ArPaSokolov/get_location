@@ -2,29 +2,32 @@ import json
 import datetime
 
 
+desired_client = "demid.working@gmail.com"  # ID, для которого вы хотите получить данные
 with open("data.json", "r") as file:
     data = json.load(file)  # читаем полученные данные
+    for item in data:
+        if item.get("receiverEmail") == desired_client:
+            receiver = item.get('receiverEmail', '-')  # почта получателя
 
-    receiver = data.get('receiverEmail', '-')  # почта получателя
+            vehicleId = item.get('vehicleId', '-')  # id груза
+            vehicleName = item.get('vehicleName', '-')  # название груза
+            stops = item.get('stops', '-')  # остановки для данного груза
 
-    vehicleId = data.get('vehicleId', '-')  # id груза
-    vehicleName = data.get('vehicleName', '-')  # название груза
-    stops = data.get('stops', '-')  # остановки для данного груза
+            if stops != '-':  # если остановки были
+                stop = stops[-1]  # берем последнюю
 
-    if stops != '-':  # если остановки были
-        stop = stops[-1]  # берем последнюю
+                address = stop.get('address', '-')  # адрес
 
-        address = stop.get('address', '-')  # адрес
+                start_time = stop.get('start', '-')  # время начала остановки
+                start_time = datetime.datetime.fromisoformat(start_time[:-1])
 
-        start_time = stop.get('start', '-')  # время начала остановки
-        start_time = datetime.datetime.fromisoformat(start_time[:-1])
-
-        end_time = stop.get('end', '-')  # время окончания остановки
-        end_time = datetime.datetime.fromisoformat(end_time[:-1])
-        print(f"Последнее местоположение груза {vehicleName} (#{vehicleId}):\
-              \nПункт: {address}\
-              \nПрибыл: {start_time.strftime('%H:%M %d-%m-%Y')}\
-              \nПокинул: {end_time.strftime('%H:%M %d-%m-%Y')}\
-              \nПолучатель: {receiver}")
-    else:
-        print(f"Местоположение груза {vehicleId} неизвестно.")
+                end_time = stop.get('end', '-')  # время окончания остановки
+                end_time = datetime.datetime.fromisoformat(end_time[:-1])
+                print(f"Последнее местоположение груза {vehicleName} (#{vehicleId}):\
+                      \nПункт: {address}\
+                      \nПрибыл: {start_time.strftime('%H:%M %d-%m-%Y')}\
+                      \nПокинул: {end_time.strftime('%H:%M %d-%m-%Y')}\
+                      \nПолучатель: {receiver}")
+                print()
+            else:
+                print(f"Местоположение груза {vehicleId} неизвестно.")

@@ -38,4 +38,4 @@ def get_data():
         return answers
 
 
-print(get_data())
+print(*get_data())

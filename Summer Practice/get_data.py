@@ -29,12 +29,13 @@ def get_data(desired_client):
                     answer_full = (f"Последнее местоположение груза {vehicleName} (#{vehicleId}):\
                                 \nПункт: {address}\
                                 \nПрибыл: {start_time.strftime('%H:%M %d-%m-%Y')}\
-                                \nПокинул: {end_time.strftime('%H:%M %d-%m-%Y')}\
-                                \nПолучатель: {receiver}\n")
+                                \nПокинул: {end_time.strftime('%H:%M %d-%m-%Y')}")
                 else:
-                    print(f"Местоположение груза {vehicleId} неизвестно.")
+                    answer_full = (f"Местоположение груза {vehicleId} неизвестно.")
+                answers_id.append(answer_id)
+                answers_full[vehicleId] = answer_full
 
-            answers_id.append(answer_id)
-            answers_full[vehicleId] = answer_full
-
+    if not answers_id:
+        return "Пользователя не существует", ""
+    if answers_id and answers_full:
         return answers_id, answers_full

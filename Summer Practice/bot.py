@@ -45,10 +45,8 @@ def response(function_call):
             bot.send_message(function_call.message.chat.id, end_mess)
             bot.answer_callback_query(function_call.id)
         elif function_call.data == "mail":
-            mail_mess = "Отправлено"
             id, full = get_data(mail)
-            print(sms(full[id[count]], mail))
-
+            mail_mess = sms(full[id[count]], mail)
             bot.send_message(function_call.message.chat.id, mail_mess)
             bot.answer_callback_query(function_call.id)
         else:
@@ -70,14 +68,14 @@ def get_answer(message):
     if "@" in message.text:
         mail = message.text
         id, full = get_data(mail)
-
-        print(id, full) # нужна проверка на наличие такого адреса в самой функции!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        keyboard = types.InlineKeyboardMarkup(row_width=1)
-        for item in id:
-            button = types.InlineKeyboardButton(text=item, callback_data=item)
-            keyboard.add(button)
-        bot.send_message(message.chat.id, 'Выберите ID груза, который Вам нужен:', reply_markup=keyboard)
+        if type(id) != str:
+            keyboard = types.InlineKeyboardMarkup(row_width=1)
+            for item in id:
+                button = types.InlineKeyboardButton(text=item, callback_data=item)
+                keyboard.add(button)
+            bot.send_message(message.chat.id, 'Выберите ID груза, который Вам нужен:', reply_markup=keyboard)
+        else:
+            bot.send_message(message.chat.id, 'Груза привязанного к данной электронной почте нет, напишите другую почту')
     else:
         third_mess = 'Введите название своей электронной почты'
         bot.send_message(message.chat.id, third_mess)

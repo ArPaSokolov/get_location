@@ -4,8 +4,10 @@ bot = telebot.TeleBot('7405204357:AAFb858hrwmJkzj8TgM7JlOFZwy4gCxRwuc')
 
 from telebot import types
 from get_data import get_data
+from sms import sms
 
-@bot.message_handler(commands=['start'])  # Начало работы
+
+@bot.message_handler(commands=['start'])
 def startBot(message):
     first_mess = f"Здравствуйте, <b>{message.from_user.first_name}</b>!\n Хотите найти груз?"  # Первое сообщение
     markup = types.InlineKeyboardMarkup()  # Создание кнопки как переменной
@@ -20,9 +22,9 @@ def helpBot(message):
     bot.send_message(message.chat.id, help_mess)
 
 
-@bot.message_handler(commands=['stop'])  # Команда стоп
+@bot.message_handler(commands=['stop'])
 def stopBot(message):
-    stop_mess = f"Уже закончили?"
+    stop_mess = f"Хотите закончить?"
     markup = types.InlineKeyboardMarkup()
     button_yes = types.InlineKeyboardButton(text='Да', callback_data='end')
     button_no = types.InlineKeyboardButton(text='Нет', callback_data='yes')
@@ -33,19 +35,33 @@ def stopBot(message):
 @bot.callback_query_handler(func=lambda call: True)
 def response(function_call):
     if function_call.message:
+        global count
         if function_call.data == "yes":  # Если нажали кнопку "Да"
-            second_mess = "Напиши свою электронную почту"  # Второе сообщение, после "Да"
+            second_mess = "Напишите адрес своей электронной почты"  # Второе сообщение, после "Да"
             bot.send_message(function_call.message.chat.id, second_mess)  # Показать второе сообщение
             bot.answer_callback_query(function_call.id)  # Обработка команды закончена
         elif function_call.data == "end":
             end_mess = "До свидания!"
             bot.send_message(function_call.message.chat.id, end_mess)
             bot.answer_callback_query(function_call.id)
-        else:
+        elif function_call.data == "mail":
+            mail_mess = "Отправлено"
             id, full = get_data(mail)
-            for i in id:
-                if function_call.data == i:
-                    bot.send_message(function_call.message.chat.id, full[i])
+            print(sms(full[id[count]], mail))
+
+            bot.send_message(function_call.message.chat.id, mail_mess)
+            bot.answer_callback_query(function_call.id)
+        else:
+            count = 0
+            id, full = get_data(mail)
+            while count < len(id):
+                if function_call.data == id[count]:
+                    markup = types.InlineKeyboardMarkup()
+                    button_mail = types.InlineKeyboardButton(text='Отправить на почту', callback_data='mail')
+                    markup.add(button_mail)
+                    bot.send_message(function_call.message.chat.id, full[id[count]], reply_markup=markup)
+                    break
+                count += 1
 
 
 @bot.message_handler(content_types=['text'])
@@ -53,8 +69,10 @@ def get_answer(message):
     global mail
     if "@" in message.text:
         mail = message.text
-        print(mail)
         id, full = get_data(mail)
+
+        print(id, full) # нужна проверка на наличие такого адреса в самой функции!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         for item in id:
             button = types.InlineKeyboardButton(text=item, callback_data=item)

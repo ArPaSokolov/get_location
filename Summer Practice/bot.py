@@ -18,18 +18,8 @@ def startBot(message):
 
 @bot.message_handler(commands=['help'])  # Команда хелп
 def helpBot(message):
-    help_mess = f"Вот команды, которые я умею:\n/start (Начало работы)\n/stop (Конец работы)\nТакже в мои возможности входит получение последних данных о передвижении груза.\nЧтобы получить местоположение груза напишите его ID"
+    help_mess = f"Вот команды, которые я умею:\n/start\nТакже в мои возможности входит получение последних данных о передвижении груза.\nЧтобы получить местоположение груза напишите Ваш адрес электронной почты"
     bot.send_message(message.chat.id, help_mess)
-
-
-@bot.message_handler(commands=['stop'])
-def stopBot(message):
-    stop_mess = f"Хотите закончить?"
-    markup = types.InlineKeyboardMarkup()
-    button_yes = types.InlineKeyboardButton(text='Да', callback_data='end')
-    button_no = types.InlineKeyboardButton(text='Нет', callback_data='yes')
-    markup.add(button_yes, button_no)
-    bot.send_message(message.chat.id, stop_mess, parse_mode='html', reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -40,10 +30,6 @@ def response(function_call):
             second_mess = "Напишите адрес своей электронной почты"  # Второе сообщение, после "Да"
             bot.send_message(function_call.message.chat.id, second_mess)  # Показать второе сообщение
             bot.answer_callback_query(function_call.id)  # Обработка команды закончена
-        elif function_call.data == "end":
-            end_mess = "До свидания!"
-            bot.send_message(function_call.message.chat.id, end_mess)
-            bot.answer_callback_query(function_call.id)
         elif function_call.data == "mail":
             id, full = get_data(mail)
             mail_mess = sms(full[id[count]], mail)
